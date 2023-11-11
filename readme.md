@@ -34,6 +34,14 @@ To lint the code, run the following command:
 npm run lint
 ```
 
+### Documentation
+
+* [Handlebars](https://handlebarsjs.com/guide/)
+* [Node.js](https://nodejs.org/en/docs/)
+* [Express.js](http://expressjs.com/)
+* [Sequelize](https://sequelize.org/docs/v6/getting-started/)
+
+
 ### License
 
 This project is licensed under the MIT License.
