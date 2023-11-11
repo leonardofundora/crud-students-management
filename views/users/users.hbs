@@ -1,0 +1,33 @@
+<div>
+    {{#if users}}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each users}}
+                    <tr>
+                        <td>{{this.name}}</td>
+                        <td>{{this.email}}</td>
+                        <td>
+                            <a
+                                href="/users/edit/{{this._id}}"
+                                class="btn btn-primary"
+                            >Editar</a>
+                            <a
+                                href="/users/delete/{{this._id}}"
+                                class="btn btn-danger"
+                            >Eliminar</a>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    {{else}}
+        <p>No hay usuarios</p>
+    {{/if}}
+</div>
