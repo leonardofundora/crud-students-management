@@ -1,6 +1,6 @@
-## Express App README.md
+## Students management App README.md
 
-This is the README.md file for the CRUD Students Gestion
+This is the README.md file for the CRUD Students Management
 
 ### Installation
 
