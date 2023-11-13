@@ -3,9 +3,9 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Correo</th>
-                    <th>Acciones</th>
+                    {{#each headersTab}}
+                    <th>{{this}}</th>
+                    {{/each}}
                 </tr>
             </thead>
             <tbody>
