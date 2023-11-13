@@ -4,7 +4,7 @@ var router = express.Router();
 /* GET users listing. */
 router.get("/", function (req, res) {
     //render users con el body y el navbar
-    res.render("users/users", {
+    res.render("tabEntity/tabEntity", {
         headersTab:['Nombre','Correo','Acciones'],
         users: [
             {
