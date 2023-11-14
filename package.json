@@ -5,6 +5,10 @@
     "scripts": {
         "start": "node ./bin/www",
         "dev": "nodemon ./bin/www",
+        "migration:generate": "sequelize migration:generate --name",
+        "migration:up": "sequelize db:migrate",
+        "migration:down": "sequelize db:migrate:undo",
+        "migration:undo:all": "sequelize db:migrate:undo:all",
         "lint": "eslint . --ext .js"
     },
     "dependencies": {
