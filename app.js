@@ -51,6 +51,12 @@ app.use(
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
 
+const { sequelize } = require("./config/sequelize.js");
+
+sequelize.authenticate()
+    .then(() => console.log('Conexión establecida correctamente.'))
+    .catch(error => console.error('Error al conectar la base de datos:', error));
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

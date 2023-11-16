@@ -1,0 +1,48 @@
+<div class="mb-3">
+    <input
+        type="text"
+        id="searchInput"
+        class="form-control"
+        placeholder="Buscar..."
+    />
+</div>
+
+<button id="searchButton" class="btn btn-primary mb-3"><i
+        class="fas fa-search"
+    ></i>
+    Buscar</button>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        <li class="page-item" id="prevPage">
+            <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <li class="page-item" id="nextPage">
+            <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<script>
+    $(document).ready(function () { let currentPage = 1; const itemsPerPage = 5;
+    function showItems() { const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    $('.item-row').hide().slice(startIndex, endIndex).show(); } function
+    searchItems(query) { const searchTerm = query.toLowerCase();
+    $('.item-row').each(function () { const itemName =
+    $(this).find('.item-name').text().toLowerCase(); if
+    (itemName.includes(searchTerm)) { $(this).show(); } else { $(this).hide(); }
+    }); updatePagination(); } function updatePagination() { const totalItems =
+    $('.item-row:visible').length; const totalPages = Math.ceil(totalItems /
+    itemsPerPage); $('#prevPage').toggleClass('disabled', currentPage === 1);
+    $('#nextPage').toggleClass('disabled', currentPage === totalPages);
+    showItems(); } $('#searchButton').on('click', function () { const
+    searchQuery = $('#searchInput').val(); searchItems(searchQuery); });
+    $('#nextPage').on('click', function () { if (currentPage < totalPages) {
+    currentPage++; updatePagination(); } }); $('#prevPage').on('click', function
+    () { if (currentPage > 1) { currentPage--; updatePagination(); } }); });
+</script>

@@ -1,0 +1,38 @@
+<div class="container mt-5">
+    <h1>Listado de Usuarios</h1>
+
+    <a href="/users/new" class="btn btn-primary mb-3"><i
+            class="fas fa-plus"
+        ></i>
+        Añadir Usuario</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre de Usuario</th>
+                <th>Correo Electrónico</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+                <tr class="item-row">
+                    <td>{{this.id}}</td>
+                    <td>{{this.username}}</td>
+                    <td>{{this.email}}</td>
+                    <td>
+                        <a
+                            href="/users/{{this.id}}/edit"
+                            class="btn btn-warning btn-sm"
+                        ><i class="fas fa-edit"></i> Editar</a>
+                        <a
+                            href="/users/{{this.id}}/delete"
+                            class="btn btn-danger btn-sm"
+                        ><i class="fas fa-trash-alt"></i> Eliminar</a>
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
