@@ -3,13 +3,12 @@ const express = require("express");
 const path = require("node:path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-
+const hbs = require("express-handlebars");
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
+const { PrismaClient } = require("@prisma/client");
 
 const app = express();
-
-const hbs = require("express-handlebars");
 
 app.engine(
     "hbs",
@@ -45,13 +44,7 @@ app.use(
     express.static(path.join(__dirname, "node_modules/bootstrap/dist/js")),
 );
 
-const { PrismaClient } = require("@prisma/client");
-
 const prisma = new PrismaClient();
-
-async function main() {
-    // ... you will write your Prisma Client queries here
-}
 
 main()
     .then(async () => {
