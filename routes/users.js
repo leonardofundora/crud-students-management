@@ -1,19 +1,12 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
+const passport = require("passport");
+const { getUsers } = require("./../controllers/user.controller");
 
 /* GET users listing. */
-router.get("/", function (req, res) {
-    //render users con el body y el navbar
-    res.render("tabEntity/tabEntity", {
-        headersTab:['Nombre','Correo','Acciones'],
-        users: [
-            {
-                name: "Juan",
-                lastName: "Perez",
-                email: "juan@juan.com"
-            },
-        ],
-    });
-});
+//usar el middleware de passport con la estrategia basada en JWT que definimos en el archivo passport.js
+//usar la función getUsers del controlador user para manejar la lógica de esta ruta
+//renderizar la vista users/ con los usuarios que nos devuelve la base de datos
+router.get("/", passport.authenticate("jwt"), getUsers);
 
 module.exports = router;

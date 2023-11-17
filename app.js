@@ -6,6 +6,8 @@ const logger = require("morgan");
 const hbs = require("express-handlebars");
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
+const passport = require('passport');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -42,6 +44,15 @@ app.use(
     "/js",
     express.static(path.join(__dirname, "node_modules/bootstrap/dist/js")),
 );
+
+// Configuramos el middleware de passport para inicializarlo
+app.use(passport.initialize());
+
+// Importamos la configuración de passport que definimos en la carpeta config
+require('./config/passport');
+
+// Usamos las rutas de autenticación con el prefijo /auth
+app.use('/auth', authRoutes);
 
 //Router
 app.use("/", indexRouter);

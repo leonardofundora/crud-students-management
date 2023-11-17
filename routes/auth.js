@@ -6,7 +6,7 @@ const passport = require('passport');
 const router = express.Router();
 
 // Importamos las funciones de los controladores que definimos en la carpeta controllers
-const { registerUser, loginUser, getProfile } = require('../controllers/user');
+const { registerUser, loginUser, getProfile } = require('./../controllers/user.controller');
 
 // Definimos una ruta para registrar un nuevo usuario
 // Esta ruta recibe un nombre, un email y una contraseña y crea un nuevo usuario en la base de datos
