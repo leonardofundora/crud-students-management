@@ -6,14 +6,14 @@
         <script src="/js/bootstrap.bundle.js"></script>
     </head>
     <body>
-        {{#if token }}
+        {{!-- {{#if token }} --}}
             {{> navbar }}
             {{> search-pagination }}
             {{{body}}}
+        {{!-- {{else}}
             {{{body}}}
-        {{else}}
-            {{{body}}}
-        {{/if}}
+        {{/if}} --}}
+     
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </body>

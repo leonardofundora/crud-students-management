@@ -29,7 +29,7 @@ const generateToken = (user) => {
 const registerUser = async (req, res) => {
     try {
         // Extraemos el nombre, el email y la contraseña del cuerpo de la petición
-        const { name, email, password } = req.body;
+        const { name, email, password, id, roleId } = req.body;
         // Comprobamos si los datos entrantes están vacíos
         if (!name || !email || !password) {
             return res
@@ -46,7 +46,7 @@ const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         // Creamos el nuevo usuario usando el cliente de prisma, pasándole el nombre, el email y la contraseña encriptada
         const newUser = await prisma.user.create({
-            data: { name, email, password: hashedPassword },
+            data: { id, name, email, password: hashedPassword, roleId },
         });
         // Generamos un token para el nuevo usuario usando la función auxiliar que definimos antes
         const token = generateToken(newUser);
@@ -95,15 +95,17 @@ const getProfile = (req, res) => {
 //otras operaciones crud
 // Definimos una función para obtener todos los usuarios
 // Esta función se usa como controlador de la ruta /users
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
     try {
         // Buscamos todos los usuarios usando el cliente de prisma
         const users = await prisma.user.findMany();
         // Devolvemos una respuesta exitosa con los usuarios
-        return res.status(200).json({ users });
+        res.locals.users = users;
+        return next();
     } catch (error) {
         // Si ocurre algún error, lo devolvemos
-        return res.status(500).json({ message: error.message });
+        res.locals.error = error;
+        return next();
     }
 };
 
