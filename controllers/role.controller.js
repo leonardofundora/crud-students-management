@@ -2,106 +2,118 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-// Create and Save a new Role
-exports.create = async (req, res) => {
-    // Validate request
-    if (!req.body.name || !req.body.description) {
-        res.status(400).send({
-            message: "Content can not be empty!",
-        });
-        return;
-    }
-
-    // Create a Role
-    const role = {
-        name: req.body.name,
-        description: req.body.description,
-    };
-
+// Definimos una función para obtener todos los roles
+// Esta función se usa como controlador de la ruta /roles
+const getRoles = async (req, res) => {
     try {
-        // Save Role in the database
-        const createdRole = await prisma.role.create({
-            data: role,
-        });
-        res.redirect("/roles");
-    } catch (err) {
-        res.status(500).send({
-            message:
-                err.message || "Some error occurred while creating the Role.",
-        });
-    }
-};
-
-// Retrieve all Roles from the database.
-exports.findAll = async (req, res) => {
-    try {
+        // Buscamos todos los roles usando el cliente de prisma
         const roles = await prisma.role.findMany();
-        res.render("roles", { title: "Roles", roles });
-    } catch (err) {
-        res.status(500).send({
-            message:
-                err.message || "Some error occurred while retrieving roles.",
-        });
+        // Devolvemos una respuesta exitosa con los roles
+        return res.status(200).json({ roles });
+    } catch (error) {
+        // Si ocurre algún error, lo devolvemos
+        return res.status(500).json({ message: error.message });
     }
 };
 
-// Find a single Role with an id
-exports.findOne = async (req, res) => {
-    const id = req.params.id;
-
+// Definimos una función para obtener un rol por su id
+// Esta función se usa como controlador de la ruta /roles/:id
+const getRoleById = async (req, res) => {
     try {
+        // Extraemos el id de los parámetros de la petición
+        const { id } = req.params;
+        // Buscamos el rol por su id usando el cliente de prisma
         const role = await prisma.role.findUnique({
             where: { id: parseInt(id) },
         });
-        res.render("role", { title: "Role", role });
-    } catch (err) {
-        res.status(500).send({
-            message: "Error retrieving Role with id=" + id,
-        });
+        // Si el rol no existe, devolvemos un error
+        if (!role) {
+            return res.status(404).json({ message: "El rol no existe" });
+        }
+        // Si el rol existe, lo devolvemos
+        return res.status(200).json({ role });
+    } catch (error) {
+        // Si ocurre algún error, lo devolvemos
+        return res.status(500).json({ message: error.message });
     }
 };
 
-// Update a Role by the id in the request
-exports.update = async (req, res) => {
-    const id = req.params.id;
-
+// Definimos una función para crear un nuevo rol
+// Esta función recibe un nombre y crea un nuevo rol en la base de datos
+// Esta función se usa como controlador de la ruta /roles
+const createRole = async (req, res) => {
     try {
-        const updatedRole = await prisma.role.update({
-            where: { id: parseInt(id) },
-            data: req.body,
-        });
-        if (updatedRole) {
-            res.redirect("/roles");
-        } else {
-            res.send({
-                message: `Cannot update Role with id=${id}. Maybe Role was not found or req.body is empty!`,
-            });
+        // Extraemos el nombre del cuerpo de la petición
+        const { name } = req.body;
+        // Comprobamos si el nombre está vacío
+        if (!name) {
+            return res
+                .status(400)
+                .json({ message: "Por favor, introduce el nombre" });
         }
-    } catch (err) {
-        res.status(500).send({
-            message: "Error updating Role with id=" + id,
+        // Creamos el rol usando el cliente de prisma
+        const role = await prisma.role.create({
+            data: { name },
         });
+        // Devolvemos una respuesta exitosa con el rol que acabamos de crear
+        return res.status(201).json({ role });
+    } catch (error) {
+        // Si ocurre algún error, lo devolvemos
+        return res.status(500).json({ message: error.message });
     }
 };
 
-// Delete a Role with the specified id in the request
-exports.delete = async (req, res) => {
-    const id = req.params.id;
-
+// Definimos una función para actualizar un rol
+// Esta función recibe un nombre y actualiza el rol en la base de datos
+// Esta función se usa como controlador de la ruta /roles/:id
+const updateRole = async (req, res) => {
     try {
-        const deletedRole = await prisma.role.delete({
+        // Extraemos el id de los parámetros de la petición
+        const { id } = req.params;
+        // Extraemos el nombre del cuerpo de la petición
+        const { name } = req.body;
+        // Comprobamos si el nombre está vacío
+        if (!name) {
+            return res
+                .status(400)
+                .json({ message: "Por favor, introduce el nombre" });
+        }
+        // Actualizamos el rol usando el cliente de prisma
+        const role = await prisma.role.update({
+            where: { id: parseInt(id) },
+            data: { name },
+        });
+        // Devolvemos una respuesta exitosa con el rol que acabamos de actualizar
+        return res.status(200).json({ role });
+    } catch (error) {
+        // Si ocurre algún error, lo devolvemos
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+// Definimos una función para eliminar un rol
+// Esta función se usa como controlador de la ruta /roles/:id
+const deleteRole = async (req, res) => {
+    try {
+        // Extraemos el id de los parámetros de la petición
+        const { id } = req.params;
+        // Eliminamos el rol usando el cliente de prisma
+        const role = await prisma.role.delete({
             where: { id: parseInt(id) },
         });
-        if (deletedRole) {
-            res.redirect("/roles");
-        } else {
-            res.send({
-                message: `Cannot delete Role with id=${id}. Maybe Role was not found!`,
-            });
-        }
-    } catch (err) {
-        res.status(500).send({
-            message: "Could not delete Role with id=" + id,
-        });
+        // Devolvemos una respuesta exitosa con el rol que acabamos de eliminar
+        return res.status(200).json({ role });
+    } catch (error) {
+        // Si ocurre algún error, lo devolvemos
+        return res.status(500).json({ message: error.message });
     }
+};
+
+// Exportamos las funciones del controlador
+module.exports = {
+    createRole,
+    deleteRole,
+    getRoleById,
+    getRoles,
+    updateRole,
 };
