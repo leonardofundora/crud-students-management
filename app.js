@@ -6,7 +6,6 @@ const logger = require("morgan");
 const hbs = require("express-handlebars");
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
-const { PrismaClient } = require("@prisma/client");
 
 const app = express();
 
@@ -43,18 +42,6 @@ app.use(
     "/js",
     express.static(path.join(__dirname, "node_modules/bootstrap/dist/js")),
 );
-
-const prisma = new PrismaClient();
-
-main()
-    .then(async () => {
-        await prisma.$disconnect();
-    })
-    .catch(async (e) => {
-        console.error(e);
-        await prisma.$disconnect();
-        process.exit(1);
-    });
 
 //Router
 app.use("/", indexRouter);
