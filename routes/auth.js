@@ -32,7 +32,7 @@ router.post(
     "/login",
     passport.authenticate("local", {
         failureRedirect: "/auth/login",
-        successRedirect: "/users/list",
+        successRedirect: "/users",
     }),
 );
 

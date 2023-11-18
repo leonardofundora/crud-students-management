@@ -8,7 +8,8 @@ const { ensureAuthenticated } = require("./../utils/auth");
 //usar la función getUsers del controlador user para manejar la lógica de esta ruta
 //renderizar la vista users/ con los usuarios que nos devuelve el controlador
 router.get(
-    "/list",
+    "/",
+    ensureAuthenticated,
     getUsers,
     (req, res) => {
         res.render("users/users", { users: res.locals.users });
