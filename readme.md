@@ -34,6 +34,14 @@ To lint the code, run the following command:
 npm run lint
 ```
 
+### Migrations to DB
+
+To create a new migration and refresh your prisma client run:
+
+```
+npm run migration
+```
+
 ### Documentation
 
 * [Handlebars](https://handlebarsjs.com/guide/)
