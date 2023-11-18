@@ -39,7 +39,8 @@ npm run lint
 * [Handlebars](https://handlebarsjs.com/guide/)
 * [Node.js](https://nodejs.org/en/docs/)
 * [Express.js](http://expressjs.com/)
-* [Sequelize](https://sequelize.org/docs/v6/getting-started/)
+* [Prisma](https://www.prisma.io/docs/getting-started/quickstart)
+* [Passport](https://www.passportjs.org/docs/)
 
 
 ### License

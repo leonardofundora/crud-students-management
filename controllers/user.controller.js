@@ -5,24 +5,6 @@ const jwt = require("jsonwebtoken");
 
 const prisma = new PrismaClient();
 
-// Definimos una función auxiliar para generar un token a partir de un usuario
-// Esta función recibe un objeto user y devuelve un token generado con la librería jsonwebtoken
-const generateToken = (user) => {
-    // Extraemos el id y el email del usuario
-    const { id, email } = user;
-    // Creamos un objeto payload con el id y el email del usuario
-    const payload = { id, email };
-    // Generamos un token usando la función jwt.sign, pasándole el payload, el secreto y algunas opciones
-    // El secreto debe ser el mismo que se usó para verificar el token
-    // Las opciones pueden incluir la fecha de expiración, el algoritmo de firma, etc.
-    // En este caso, indicamos que el token caduca en una hora
-    const token = jwt.sign(payload, process.env.JWT_SECRET || "secret", {
-        expiresIn: "48h",
-    });
-    // Devolvemos el token
-    return token;
-};
-
 // Definimos una función para registrar un nuevo usuario
 // Esta función recibe un nombre, un email y una contraseña y crea un nuevo usuario en la base de datos
 // Esta función se usa como controlador de la ruta /auth/register
@@ -48,28 +30,8 @@ const registerUser = async (req, res) => {
         const newUser = await prisma.user.create({
             data: { id, name, email, password: hashedPassword, roleId },
         });
-        // Generamos un token para el nuevo usuario usando la función auxiliar que definimos antes
-        const token = generateToken(newUser);
-        // Devolvemos una respuesta exitosa con el token y el usuario
-        return res.status(201).json({ token, user: newUser });
-    } catch (error) {
-        // Si ocurre algún error, lo devolvemos
-        return res.status(500).json({ message: error.message });
-    }
-};
-
-// Definimos una función para iniciar sesión con un usuario existente
-// Esta función recibe un email y una contraseña y verifica si el usuario es válido y si la contraseña es correcta
-// Esta función se usa como controlador de la ruta /auth/login
-const loginUser = (req, res) => {
-    try {
-        // Extraemos el usuario de la petición
-        // Este usuario es el que nos devuelve el middleware de passport con la estrategia local
-        const user = req.user;
-        // Generamos un token para el usuario usando la función auxiliar que definimos antes
-        const token = generateToken(user);
-        // Devolvemos una respuesta exitosa con el token y el usuario
-        return res.status(200).json({ token, user });
+        // Devolvemos una respuesta exitosa con el usuario
+        return res.status(201).json({ user: newUser });
     } catch (error) {
         // Si ocurre algún error, lo devolvemos
         return res.status(500).json({ message: error.message });
@@ -204,7 +166,6 @@ const deleteUser = async (req, res) => {
 module.exports = {
     logoutUser,
     registerUser,
-    loginUser,
     getProfile,
     getUsers,
     getUserById,
