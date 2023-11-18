@@ -76,6 +76,26 @@ const loginUser = (req, res) => {
     }
 };
 
+// Definimos una función para cerrar sesión
+// Esta función no recibe ningún parámetro
+// Esta función se usa como controlador de la ruta /auth/logout
+const logoutUser = (req, res, next) => {
+    try {
+        // Usamos el método req.logout para cerrar la sesión del usuario
+        req.logout((err) => {
+            // If there is an error, handle it
+            if (err) {
+                return res.status(500).json({ message: err.message });
+            }
+            // If there is no error, redirect the user to the home page
+            res.redirect("/auth/login");
+        });
+    } catch (error) {
+        // Si ocurre algún error, lo devolvemos
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 // Definimos una función para obtener el perfil de un usuario autenticado
 // Esta función recibe un token en la cabecera de la petición y verifica si el token es válido y si el usuario existe
 // Esta función se usa como controlador de la ruta /auth/profile
@@ -182,6 +202,7 @@ const deleteUser = async (req, res) => {
 
 // Exportamos las funciones que definimos
 module.exports = {
+    logoutUser,
     registerUser,
     loginUser,
     getProfile,

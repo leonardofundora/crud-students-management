@@ -12,7 +12,7 @@ router.get(
     ensureAuthenticated,
     getUsers,
     (req, res) => {
-        res.render("users/users", { users: res.locals.users });
+        res.render("users/users", { users: res.locals.users, user: req.user });
     },
 );
 

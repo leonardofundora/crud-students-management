@@ -9,6 +9,7 @@ const router = express.Router();
 const {
     registerUser,
     getProfile,
+    logoutUser,
 } = require("./../controllers/user.controller");
 
 // Definimos una ruta para registrar un nuevo usuario
@@ -35,6 +36,12 @@ router.post(
         successRedirect: "/users",
     }),
 );
+
+// Definimos una ruta para cerrar sesión
+// Esta ruta no recibe ningún parámetro
+// Usamos el método req.logout para cerrar la sesión del usuario
+// Redirigimos al usuario a la vista de login
+router.get("/logout", logoutUser);
 
 // Definimos una ruta protegida que solo pueda acceder un usuario autenticado
 // Esta ruta recibe un token en la cabecera de la petición y verifica si el token es válido y si el usuario existe
