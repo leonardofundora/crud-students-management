@@ -16,6 +16,14 @@ router.get(
     },
 );
 
+router.get("/add", ensureAuthenticated,(req, res) => {
+    res.render("users/add-user", { user: req.user });
+});
+
+router.post("/add", ensureAuthenticated, registerUser, (req, res) => {
+    res.redirect("/users");
+});
+
 /* Register POST */
 // Definimos una ruta para registrar un nuevo usuario
 // Esta ruta recibe un nombre, un email y una contraseña y crea un nuevo usuario en la base de datos

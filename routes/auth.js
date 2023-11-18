@@ -11,6 +11,7 @@ const {
     getProfile,
     logoutUser,
 } = require("./../controllers/user.controller");
+const { ensureAuthenticated } = require("../utils/auth");
 
 // Definimos una ruta para registrar un nuevo usuario
 // Esta ruta recibe un nombre, un email y una contraseña y crea un nuevo usuario en la base de datos
@@ -47,7 +48,9 @@ router.get("/logout", logoutUser);
 // Esta ruta recibe un token en la cabecera de la petición y verifica si el token es válido y si el usuario existe
 // Usamos el middleware de passport con la estrategia basada en JWT que definimos en el archivo passport.js
 // Usamos la función getProfile del controlador user para manejar la lógica de esta ruta
-router.get("/profile", passport.authenticate("jwt"), getProfile);
+router.get("/profile", ensureAuthenticated, getProfile, (req, res)=>{
+    res.render("users/profile", { user: res.locals.user });
+});
 
 // Exportamos el objeto router
 module.exports = router;

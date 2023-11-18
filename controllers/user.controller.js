@@ -8,30 +8,28 @@ const prisma = new PrismaClient();
 // Definimos una función para registrar un nuevo usuario
 // Esta función recibe un nombre, un email y una contraseña y crea un nuevo usuario en la base de datos
 // Esta función se usa como controlador de la ruta /auth/register
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
     try {
         // Extraemos el nombre, el email y la contraseña del cuerpo de la petición
         const { name, email, password, id, roleId } = req.body;
         // Comprobamos si los datos entrantes están vacíos
         if (!name || !email || !password) {
-            return res
-                .status(400)
-                .json({ message: "Por favor, introduce los datos" });
+            return res.locals.error =  new Error("Por favor, introduce los datos");
         }
         // Comprobamos si el usuario ya existe o no
         const userExist = await prisma.user.findUnique({ where: { email } });
         if (userExist) {
-            return res.status(400).json({ message: "El usuario ya existe" });
+            return res.locals.error = new Error("El usuario ya existe");
         }
         // Encriptamos la contraseña usando la función bcrypt.hash, pasándole la contraseña y un número de rondas de salting
         // El salting es un proceso que añade aleatoriedad a la contraseña para hacerla más segura
         const hashedPassword = await bcrypt.hash(password, 10);
         // Creamos el nuevo usuario usando el cliente de prisma, pasándole el nombre, el email y la contraseña encriptada
         const newUser = await prisma.user.create({
-            data: { id, name, email, password: hashedPassword, roleId },
+            data: { id, name, email, password: hashedPassword, roleId: +roleId },
         });
         // Devolvemos una respuesta exitosa con el usuario
-        return res.status(201).json({ user: newUser });
+        next();
     } catch (error) {
         // Si ocurre algún error, lo devolvemos
         return res.status(500).json({ message: error.message });
@@ -61,16 +59,18 @@ const logoutUser = (req, res, next) => {
 // Definimos una función para obtener el perfil de un usuario autenticado
 // Esta función recibe un token en la cabecera de la petición y verifica si el token es válido y si el usuario existe
 // Esta función se usa como controlador de la ruta /auth/profile
-const getProfile = (req, res) => {
+const getProfile = (req, res, next) => {
     try {
         // Extraemos el usuario de la petición
         // Este usuario es el que nos devuelve el middleware de passport con la estrategia basada en JWT
         const user = req.user;
         // Devolvemos una respuesta exitosa con el usuario
-        return res.status(200).json({ user });
+        res.locals.user = user;
+        return next();
     } catch (error) {
         // Si ocurre algún error, lo devolvemos
-        return res.status(500).json({ message: error.message });
+        res.locals.error = error;
+        return next();
     }
 };
 
