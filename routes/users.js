@@ -9,7 +9,6 @@ const { ensureAuthenticated } = require("./../utils/auth");
 //renderizar la vista users/ con los usuarios que nos devuelve el controlador
 router.get(
     "/",
-    ensureAuthenticated,
     getUsers,
     (req, res) => {
         res.render("users/users", { users: res.locals.users, user: req.user });

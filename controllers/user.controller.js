@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 // Definimos una función para registrar un nuevo usuario
 // Esta función recibe un nombre, un email y una contraseña y crea un nuevo usuario en la base de datos
 // Esta función se usa como controlador de la ruta /auth/register
-const registerUser = async (req, res) => {
+const registerUser = async (req, res,next) => {
     try {
         // Extraemos el nombre, el email y la contraseña del cuerpo de la petición
         const { name, email, password, id, roleId } = req.body;
@@ -32,6 +32,7 @@ const registerUser = async (req, res) => {
         });
         // Devolvemos una respuesta exitosa con el usuario
         return res.status(201).json({ user: newUser });
+        next()
     } catch (error) {
         // Si ocurre algún error, lo devolvemos
         return res.status(500).json({ message: error.message });
