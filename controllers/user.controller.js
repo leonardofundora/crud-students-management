@@ -5,170 +5,162 @@ const jwt = require("jsonwebtoken");
 
 const prisma = new PrismaClient();
 
+const renderViewUsers = async (req, res) => {
+    try {
+        const users = await prisma.user.findMany();
+        res.render("users/users", { users });
+    } catch (error) {
+        res.locals.error = "Hubo un error al obtener la lista de usuarios.";
+        res.render("users/users");
+    }
+};
+
+// Controller to render add user form
+const renderAddUserForm = async (req, res) => {
+    try {
+        const roles = await prisma.role.findMany();
+        res.render("users/add-user", { roles });
+    } catch (error) {
+        res.locals.error = "Hubo un error al cargar el formulario de agregar usuario.";
+        renderAddUserForm(req, res);
+    }
+};
+
+// Controller to render update user form
+const renderUpdateUserForm = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await prisma.user.findUnique({ where: { id } });
+        const roles = await prisma.role.findMany();
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+        res.render("users/update-user", { user, roles });
+    } catch (error) {
+        res.locals.error = "Hubo un error al cargar el formulario de actualizar usuario.";
+        renderUpdateUserForm(req, res);
+    }
+};
+
 // Definimos una función para registrar un nuevo usuario
 // Esta función recibe un nombre, un email y una contraseña y crea un nuevo usuario en la base de datos
 // Esta función se usa como controlador de la ruta /auth/register
-const registerUser = async (req, res, next) => {
+const registerUser = async (req, res) => {
     try {
         // Extraemos el nombre, el email y la contraseña del cuerpo de la petición
         const { name, email, password, id, roleId } = req.body;
         // Comprobamos si los datos entrantes están vacíos
         if (!name || !email || !password) {
-            return res.locals.error =  new Error("Por favor, introduce los datos");
+            return (res.locals.error = "Por favor, introduce todos los datos necesarios.");
         }
         // Comprobamos si el usuario ya existe o no
         const userExist = await prisma.user.findUnique({ where: { email } });
         if (userExist) {
-            return res.locals.error = new Error("El usuario ya existe");
+            return (res.locals.error = "El usuario ya existe, por favor intenta con un email diferente.");
         }
         // Encriptamos la contraseña usando la función bcrypt.hash, pasándole la contraseña y un número de rondas de salting
         // El salting es un proceso que añade aleatoriedad a la contraseña para hacerla más segura
         const hashedPassword = await bcrypt.hash(password, 10);
         // Creamos el nuevo usuario usando el cliente de prisma, pasándole el nombre, el email y la contraseña encriptada
         const newUser = await prisma.user.create({
-            data: { id, name, email, password: hashedPassword, roleId: +roleId },
+            data: {
+                id,
+                name,
+                email,
+                password: hashedPassword,
+                roleId: +roleId,
+            },
         });
         // Devolvemos una respuesta exitosa con el usuario
-        next();
+        return res.status(201).json({ newUser });
     } catch (error) {
         // Si ocurre algún error, lo devolvemos
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: "Hubo un error al registrar el usuario, por favor intenta de nuevo." });
     }
 };
 
 // Definimos una función para cerrar sesión
 // Esta función no recibe ningún parámetro
 // Esta función se usa como controlador de la ruta /auth/logout
-const logoutUser = (req, res, next) => {
+const logoutUser = (req, res) => {
     try {
         // Usamos el método req.logout para cerrar la sesión del usuario
         req.logout((err) => {
             // If there is an error, handle it
             if (err) {
-                return res.status(500).json({ message: err.message });
+                return res.status(500).json({ message: "Hubo un error al cerrar la sesión, por favor intenta de nuevo." });
             }
             // If there is no error, redirect the user to the home page
             res.redirect("/auth/login");
         });
     } catch (error) {
         // Si ocurre algún error, lo devolvemos
-        return res.status(500).json({ message: error.message });
+        res.locals.error = "Hubo un error al cerrar la sesión, por favor intenta de nuevo.";
+        res.redirect("/auth/login");
     }
 };
 
-// Definimos una función para obtener el perfil de un usuario autenticado
-// Esta función recibe un token en la cabecera de la petición y verifica si el token es válido y si el usuario existe
-// Esta función se usa como controlador de la ruta /auth/profile
-const getProfile = (req, res, next) => {
+// Controller to create a user
+const createUser = async (req, res) => {
     try {
-        // Extraemos el usuario de la petición
-        // Este usuario es el que nos devuelve el middleware de passport con la estrategia basada en JWT
-        const user = req.user;
-        // Devolvemos una respuesta exitosa con el usuario
-        res.locals.user = user;
-        return next();
-    } catch (error) {
-        // Si ocurre algún error, lo devolvemos
-        res.locals.error = error;
-        return next();
-    }
-};
-
-//otras operaciones crud
-// Definimos una función para obtener todos los usuarios
-// Esta función se usa como controlador de la ruta /users
-const getUsers = async (req, res, next) => {
-    try {
-        // Buscamos todos los usuarios usando el cliente de prisma
-        const users = await prisma.user.findMany();
-        // Devolvemos una respuesta exitosa con los usuarios
-        res.locals.users = users;
-        return next();
-    } catch (error) {
-        // Si ocurre algún error, lo devolvemos
-        res.locals.error = error;
-        return next();
-    }
-};
-
-// Definimos una función para obtener un usuario por su id
-// Esta función se usa como controlador de la ruta /users/:id
-const getUserById = async (req, res) => {
-    try {
-        // Extraemos el id de los parámetros de la petición
-        const { id } = req.params;
-        // Buscamos el usuario por su id usando el cliente de prisma
-        const user = await prisma.user.findUnique({
-            where: { id: parseInt(id) },
+        const { id, name, email, password, roleId } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await prisma.user.create({
+            data: {
+                id,
+                name,
+                email,
+                password: hashedPassword,
+                roleId: +roleId,
+            },
         });
-        // Si el usuario no existe, devolvemos un error
-        if (!user) {
-            return res.status(404).json({ message: "El usuario no existe" });
-        }
-        // Si el usuario existe, lo devolvemos
-        return res.status(200).json({ user });
+        res.redirect("/users");
     } catch (error) {
-        // Si ocurre algún error, lo devolvemos
-        return res.status(500).json({ message: error.message });
+        res.locals.error = "Hubo un error al crear el usuario, por favor intenta de nuevo.";
+        renderAddUserForm(req, res);
     }
 };
 
-// Definimos una función para actualizar un usuario
-// Esta función recibe un nombre, un email y una contraseña y crea un nuevo usuario en la base de datos
-// Esta función se usa como controlador de la ruta /users
+// Controller to update a user
 const updateUser = async (req, res) => {
     try {
-        // Extraemos el id de los parámetros de la petición
         const { id } = req.params;
-        // Extraemos el nombre, el email y la contraseña del cuerpo de la petición
-        const { name, email, password } = req.body;
-        // Comprobamos si los datos entrantes están vacíos
-        if (!name || !email || !password) {
-            return res
-                .status(400)
-                .json({ message: "Por favor, introduce los datos" });
+        const user = await prisma.user.findUnique({ where: { id } });
+        if (!user) {
+            renderUpdateUserForm(req, res);
         }
-        // Encriptamos la contraseña usando la función bcrypt.hash, pasándole la contraseña y un número de rondas de salting
-        // El salting es un proceso que añade aleatoriedad a la contraseña para hacerla más segura
+        const { name, email, password, roleId } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
-        // Actualizamos el usuario usando el cliente de prisma, pasándole el id, el nombre, el email y la contraseña encriptada
-        const updatedUser = await prisma.user.update({
-            where: { id: parseInt(id) },
-            data: { name, email, password: hashedPassword },
+        await prisma.user.update({
+            where: { id },
+            data: { name, email, password: hashedPassword, roleId: +roleId },
         });
-        // Devolvemos una respuesta exitosa con el usuario actualizado
-        return res.status(200).json({ updatedUser });
+        res.redirect("/users");
     } catch (error) {
-        // Si ocurre algún error, lo devolvemos
-        return res.status(500).json({ message: error.message });
+        res.locals.error = "Hubo un error al actualizar el usuario, por favor intenta de nuevo.";
+        renderUpdateUserForm(req, res);
     }
 };
 
-// Definimos una función para eliminar un usuario
-// Esta función se usa como controlador de la ruta /users/:id
+// Controller to delete a user
 const deleteUser = async (req, res) => {
     try {
-        // Extraemos el id de los parámetros de la petición
         const { id } = req.params;
-        // Eliminamos el usuario usando el cliente de prisma
-        const deletedUser = await prisma.user.delete({
-            where: { id: parseInt(id) },
-        });
-        // Devolvemos una respuesta exitosa con el usuario eliminado
-        return res.status(200).json({ deletedUser });
+        await prisma.user.delete({ where: { id } });
+        redirect("/users");
     } catch (error) {
-        // Si ocurre algún error, lo devolvemos
-        return res.status(500).json({ message: error.message });
+        res.locals.error = "Hubo un error al eliminar el usuario, por favor intenta de nuevo.";
+        redirect("/users");
     }
 };
 
-// Exportamos las funciones que definimos
 module.exports = {
-    logoutUser,
     registerUser,
-    getProfile,
-    getUsers,
-    getUserById,
+    logoutUser,
+    createUser,
     updateUser,
     deleteUser,
+    renderAddUserForm,
+    renderUpdateUserForm,
+    renderViewUsers,
 };

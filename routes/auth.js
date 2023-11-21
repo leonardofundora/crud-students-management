@@ -44,13 +44,6 @@ router.post(
 // Redirigimos al usuario a la vista de login
 router.get("/logout", logoutUser);
 
-// Definimos una ruta protegida que solo pueda acceder un usuario autenticado
-// Esta ruta recibe un token en la cabecera de la petición y verifica si el token es válido y si el usuario existe
-// Usamos el middleware de passport con la estrategia basada en JWT que definimos en el archivo passport.js
-// Usamos la función getProfile del controlador user para manejar la lógica de esta ruta
-router.get("/profile", ensureAuthenticated, getProfile, (req, res)=>{
-    res.render("users/profile", { user: res.locals.user });
-});
 
 // Exportamos el objeto router
 module.exports = router;

@@ -17,6 +17,11 @@ app.engine(
         defaultLayout: "layout",
         layoutsDir: __dirname + "/views/layouts/",
         partialsDir: __dirname + "/views/partials/",
+        helpers: {
+            eq: function (v1, v2) {
+                return v1 === v2;
+            },
+        },
     }),
 );
 
@@ -62,6 +67,11 @@ passportConfig(passport);
 // Importamos la configuración de passport que definimos en la carpeta config
 require("./config/passport");
 
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.isAuthenticated();
+    next();
+});
+
 // Usamos las rutas de autenticación con el prefijo /auth
 const authRoutes = require("./routes/auth");
 app.use("/auth", authRoutes);
@@ -69,11 +79,9 @@ app.use("/auth", authRoutes);
 //Router
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
-const rolesRouter = require("./routes/roles");
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-app.use("/roles", rolesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
